@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/index.css' %}">
+    <script rel="script" src="{% static 'js/index.js' %}"></script>
+    <script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/dropzone@5/dist/min/dropzone.min.css" type="text/css"/>
+    <title>Dubov</title>
+</head>
+<body>
+<header>
+    <nav class="nav center">
+        <ul>
+            <li class="current"><a href="">Моя страница</a></li>
+            <li><a href="">Сообщения</a></li>
+            <li><a onclick="logout()">Выход</a></li>
+        </ul>
+    </nav>
+</header>
+<main>
+    <div class="popup-fade"></div>
+    <div class="esc" onclick="close_input();"><p>X</p></div>
+    <div class="input-file-area" ondrop="dropHandler(event);" ondragover="dragOverHandler(event);">
+        <input class="file-input" type="file" id="upload" title=" ">
+        <p>или</p>
+        <p>перетяните его сюда</p>
+    </div>
+    <div class="page preloader">
+        {% csrf_token %}
+        <div class="photo">
+            <div class="avatar">
+                <img>
+                <p onclick="upload_file()">Изменить фото</p>
+            </div>
+        </div>
+        <div class="data">
+            <p>Имя: </p>
+            <p>Фамилия: </p>
+            <p>Возраст: </p>
+        </div>
+        <div class="data-input">
+            <input oninput="patchUser(this)" class="name" placeholder="Введите имя">
+            <input oninput="patchUser(this)" class="surname" placeholder="Введите фамилию">
+            <input oninput="patchUser(this)" class="age" placeholder="Введите возраст">
+        </div>
+    </div>
+</main>
+</body>
+</html>

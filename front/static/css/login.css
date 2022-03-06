@@ -1,0 +1,108 @@
+.form_container {
+    display: flex;
+    justify-content: center;
+    z-index: 2;
+    max-width: 315px;
+    width: 100%;
+    background: #FFFFFF;
+    box-shadow: 0px 6px 50px rgba(230, 255, 217, 0.7);
+    border-radius: 20px;
+    padding-left: 30px;
+    padding-right: 30px;
+    padding-top: 38px;
+    padding-bottom: 38px;
+    animation-name: fadeForm;
+    animation-duration: .7s;
+    animation-timing-function: ease-in-out;
+    animation-delay: 1.4s;
+    animation-iteration-count: 1;
+    animation-fill-mode: forwards;
+}
+
+main {
+    background: #f2fef1;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.login_form {
+    width: 80%;
+}
+
+.register_form {
+    width: 80%;
+    display: none;
+}
+
+.form-title {
+    font-size: 20px;
+}
+
+.login_form .form-title:first-child {
+    text-decoration: underline;
+}
+
+.register_form .form-title:last-child {
+    text-decoration: underline;
+}
+
+.texts {
+    display: flex;
+    margin: auto;
+    justify-content: space-between;
+    width: 80%;
+    color: #70ba67;
+}
+
+.texts .form-title:hover {
+    color: #78e31b;
+}
+
+.form-field {
+    margin: 10px 0;
+    width: 100%;
+}
+
+input {
+    height: 35px;
+    width: 100%;
+    color: #53951a;
+    font-size: 14px;
+    line-height: 16px;
+    border: 2px solid #caecc8;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+input:focus {
+    outline: none;
+    border: 2px solid #caecc8;
+}
+
+input:hover {
+    outline: none;
+    border: 2px solid #93d98f;
+}
+
+.button {
+    width: 100%;
+    font-weight: bold;
+    font-size: 14px;
+    display: block;
+    height: 35px;
+    background: #91f384;
+    border-radius: 5px;
+    color: #fff;
+    text-transform: uppercase;
+    text-align: center;
+    line-height: 35px;
+    cursor: pointer;
+    border: none;
+}
+
+.button:hover {
+    background-color: #8ee766;
+}
