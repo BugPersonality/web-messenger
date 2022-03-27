@@ -31,7 +31,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     name = models.CharField(max_length=255, null=True)
     surname = models.CharField(max_length=255, null=True)
     age = models.IntegerField(null=True)
-    photo = models.TextField(null=True, default='https://i.imgur.com/rbFwK50.jpg')
+    photo = models.ForeignKey(to='pages.File', verbose_name='Файл',
+                              on_delete=models.CASCADE, default=1)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_staff = models.BooleanField(default=False)

@@ -1,4 +1,4 @@
-const host = "https://messenger-by-best-html-dev.herokuapp.com/"
+const host = window.location.origin + '/'
 
 function getCookie(name) {
     let matches = document.cookie.match(new RegExp(

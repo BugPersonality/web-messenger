@@ -7,12 +7,17 @@ from .models import User
 
 
 class UserSerializer(serializers.ModelSerializer):
+    photo = serializers.SerializerMethodField()
+
     class Meta:
         model = User
         fields = ('id', 'username', 'email', 'name', 'surname', 'age', 'photo', 'last_login', 'password')
         extra_kwargs = {
             'password': {'write_only': True},
         }
+
+    def get_photo(self, obj):
+        return 'media/' + str(obj.photo.file)
 
     def validate(self, attrs):
         if pwd := attrs.get('password', None):

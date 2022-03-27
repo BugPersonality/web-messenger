@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+<div id="page" style="display: none">{{ page }}</div>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,8 +15,8 @@
 <header>
     <nav class="nav center">
         <ul>
-            <li class="current"><a href="">Моя страница</a></li>
-            <li><a href="">Сообщения</a></li>
+            <li class="current"><a href="{% url 'index' %}">Моя страница</a></li>
+            <li><a href="{% url 'messages' %}">Сообщения</a></li>
             <li><a onclick="logout()">Выход</a></li>
         </ul>
     </nav>
@@ -24,28 +25,72 @@
     <div class="popup-fade"></div>
     <div class="esc" onclick="close_input();"><p>X</p></div>
     <div class="input-file-area" ondrop="dropHandler(event);" ondragover="dragOverHandler(event);">
-        <input class="file-input" type="file" id="upload" title=" ">
+        <input class="file-input input input__file" type="file" id="upload" title=" ">
+        <label for="upload" class="input__file-button">
+            <span class="input__file-button-text">Выберите файл</span>
+        </label>
         <p>или</p>
         <p>перетяните его сюда</p>
     </div>
     <div class="page preloader">
-        {% csrf_token %}
-        <div class="photo">
-            <div class="avatar">
-                <img>
-                <p onclick="upload_file()">Изменить фото</p>
+        <div class="top-data">
+            {% csrf_token %}
+            <div class="photo">
+                <div class="avatar">
+                    <img>
+                    <p onclick="upload_file()">Изменить фото</p>
+                </div>
+            </div>
+            <div class="data">
+                <p>Имя: </p>
+                <p>Фамилия: </p>
+                <p>Возраст: </p>
+            </div>
+            <div class="data-input">
+                <input oninput="patchUser(this)" class="name" placeholder="Введите имя">
+                <input oninput="patchUser(this)" class="surname" placeholder="Введите фамилию">
+                <input oninput="patchUser(this)" class="age" placeholder="Введите возраст">
             </div>
         </div>
-        <div class="data">
-            <p>Имя: </p>
-            <p>Фамилия: </p>
-            <p>Возраст: </p>
+        <div class="articles">
+            <p>Создать запись</p>
+            <div class="article">
+                <input class="header-input" placeholder="Заголовок">
+                <p class="line"></p>
+                <textarea class="textarea-input" placeholder="Текст"></textarea>
+                <button onclick="create_article()" class="button-article">
+                    Опубликовать
+                </button>
+            </div>
+            <p style="display: none">Записи</p>
+            <p style="display: none" id="end">конец</p>
         </div>
-        <div class="data-input">
-            <input oninput="patchUser(this)" class="name" placeholder="Введите имя">
-            <input oninput="patchUser(this)" class="surname" placeholder="Введите фамилию">
-            <input oninput="patchUser(this)" class="age" placeholder="Введите возраст">
-        </div>
+        <template id="article">
+            <div class="article">
+                <p class="header">ff</p>
+                <p class="line"></p>
+                <p class="text">ff</p>
+                <p onclick="delete_article(this)" class="delete-article">x</p>
+                <p class="line"></p>
+                <div class="comments">
+                    <p>Комментарии</p>
+                </div>
+                <p class="line"></p>
+                <input class="header-input" id="write-comment" placeholder="Написать коммент">
+                <button onclick="create_comment(this)" class="button-comment">
+                    Отправить
+                </button>
+            </div>
+        </template>
+        <template id="comments">
+            <p class="line"></p>
+            <div class="comment">
+                <img class="comment-avatar" src="">
+                <p class="comment-name">Левввввв</p>
+                <p class="comment-text">ff</p>
+                <p onclick="delete_comment(this)" class="delete-comment">x</p>
+            </div>
+        </template>
     </div>
 </main>
 </body>

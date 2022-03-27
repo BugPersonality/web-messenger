@@ -19,9 +19,18 @@ class ArticleSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
+    photo = serializers.SerializerMethodField()
+    name = serializers.SerializerMethodField()
+
     class Meta:
         model = Comment
-        fields = ('id', 'text', 'article', 'user')
+        fields = ('id', 'text', 'article', 'user', 'photo', 'name')
+
+    def get_photo(self, comment):
+        return 'media/' + str(comment.user.photo.file)
+
+    def get_name(self, comment):
+        return comment.user.name
 
     def create(self, validated_data):
         return Comment.objects.create_article(**validated_data)

@@ -1,0 +1,182 @@
+:active, :hover, :focus {
+    outline: 0;
+    outline-offset: 0;
+}
+
+body {
+    height: calc(100vh - 70px)
+}
+
+main {
+    width: 100%;
+    height: 100%;
+    margin-top: 68px;
+    display: flex;
+    justify-content: center;
+}
+
+.user {
+    display: flex;
+    flex-direction: row;
+    height: 50px;
+    border: 1px double rgba(33, 99, 9, 0.16);
+}
+
+.search {
+    width: 100%;
+    box-sizing: border-box;
+    border-bottom: 5px solid rgba(33, 99, 9, 0.16);
+}
+
+.search input {
+    padding-left: 5px;
+    height: 50px;
+    box-sizing: border-box;
+    width: 100%;
+    border: 1px double rgba(33, 99, 9, 0.16);
+}
+
+.search-text {
+    cursor: pointer;
+    margin: auto 0 auto 20px;
+    color: #34631a;
+}
+
+.dialogs {
+    width: 100%;
+}
+
+.dialog {
+    border: 1px double rgba(33, 99, 9, 0.16);
+    box-sizing: border-box;
+    cursor: pointer;
+    display: flex;
+    width: 100%;
+    height: 50px;
+}
+
+.dialog p {
+    margin: 0;
+}
+
+.dialog-content {
+    width: 100%;
+    margin-left: 20px;
+    display: flex;
+    flex-direction: column
+}
+
+.header-msg {
+    padding-left: 20px;
+    text-align: left;
+}
+
+.messages {
+    display: flex;
+    flex-direction: column;
+    width: 40%;
+    height: calc(100%);
+    position: relative;
+    overflow: auto;
+    box-shadow: 15px 0 15px -15px #93d98f;
+    outline: 1px double rgba(33, 99, 9, 0.16);
+}
+
+.messages_inner {
+    display: flex;
+    flex-direction: column;
+    height: calc(100% - 30px);
+    position: relative;
+    overflow: auto;
+}
+
+.messages .data {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin: 0;
+    transform: translate(-50%, -50%);
+}
+
+.message-text {
+    background-color: rgba(145, 243, 132, 0.43);
+    padding: 10px;
+    border-radius: 10px;
+    margin: 5px;
+    word-break: break-word;
+}
+
+.message-text p {
+    margin: 0;
+    display: inline-block;
+}
+
+.left-part {
+    display: flex;
+    flex-direction: column;
+    width: 20%;
+    height: 100%;
+    box-shadow: -15px 0 15px -15px #93d98f;
+}
+
+.comment-avatar {
+    margin: auto 0 auto 5px;
+}
+
+.msg-print {
+    padding: 5px;
+    height: 30px;
+    box-sizing: border-box;
+    position: absolute;
+    width: calc(100% - 50px);
+    left: 0;
+    border: 0;
+    outline: 1px double rgba(33, 99, 9, 0.16);
+    bottom: 0;
+}
+
+.last-msg {
+    height: 20px;
+    overflow: hidden;
+}
+
+.message {
+    max-width: 70%;
+    align-self: flex-start;
+    display: flex;
+    flex-direction: row;
+}
+
+.comment-avatar {
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
+.msg-enter {
+    display: none;
+}
+
+.msg-enter button {
+    height: 30px;
+    width: 50px;
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    border: 0;
+    outline: 1px double rgba(33, 99, 9, 0.16);
+}
+
+.active_dialog {
+    background-color: rgba(93, 213, 41, 0.17);
+}
+
+.msg-enter button:hover {
+    background-color: rgba(147, 217, 143, 0.44);
+}
+
+.delete-msg {
+    display: none;
+    color: rgba(255, 100, 70, 0.67);
+    margin: auto 5px;
+    cursor: pointer;
+}

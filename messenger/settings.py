@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     'msgs',
     'rest_framework',
     'corsheaders',
+    'channels',
 ]
 
 MIDDLEWARE = [
@@ -67,7 +68,14 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'messenger.wsgi.application'
+# WSGI_APPLICATION = 'messenger.wsgi.application'
+ASGI_APPLICATION = 'messenger.asgi.application'
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer'
+    }
+}
 
 
 # Database
@@ -76,11 +84,11 @@ WSGI_APPLICATION = 'messenger.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': os.environ.get('DB_NAME'),
-        'USER': os.environ.get('DB_USER'),
-        'PASSWORD': os.environ.get('DB_PASSWORD'),
-        'HOST': os.environ.get('DB_HOST'),
-        'PORT': os.environ.get('DB_PORT'),
+        'NAME': os.environ.get('DATABASE_URL').split('/')[-1],
+        'USER': os.environ.get('DATABASE_URL').split('postgres://')[1].split(':')[0],
+        'PASSWORD': os.environ.get('DATABASE_URL').split(':')[2].split('@')[0],
+        'HOST': os.environ.get('DATABASE_URL').split('@')[1].split(':')[0],
+        'PORT': os.environ.get('DATABASE_URL').split(':')[-1].split('/')[0],
     }
 }
 

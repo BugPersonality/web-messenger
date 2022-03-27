@@ -4,8 +4,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from authentication.services import auth
-from .services import get_instance_and_check_access
-from .models import Article, Comment, File
+from .services import get_instance_and_check_access, upd_photo
+from .models import Article, Comment
 from authentication.models import User
 from .serializers import ArticleSerializer, CommentSerializer
 from authentication.serializers import UserSerializer
@@ -18,7 +18,7 @@ class UserAPIView(APIView):
     comment_serializer_class = CommentSerializer
 
     def get(self, request, pk=None):
-        user = get_object_or_404(User, pk=pk or request.user.pk)
+        user = get_object_or_404(User.objects.select_related('photo'), pk=pk or request.user.pk)
         serializer = self.user_serializer_class(instance=user)
         user = serializer.data
         user['owner'] = request.user.pk == pk
@@ -26,21 +26,14 @@ class UserAPIView(APIView):
         serializer = self.article_serializer_class(instance=articles, many=True)
         articles = serializer.data
         set_comments_to_article(self.comment_serializer_class, articles)
-        file = File.objects.filter(user_id=pk or request.user.pk)
-        if file:
-            user['photo'] = 'media/' + str(file.latest('pk').file)
-        return Response({"user": user, "articles": articles}, status=status.HTTP_200_OK)
+        return Response({"my_id": request.user.pk or -1, "user": user, "articles": articles}, status=status.HTTP_200_OK)
 
     @auth
     def put(self, request):
-        photo = []
-        for filename, file in request.FILES.items():
-            instance = File(file=file, user_id=request.user.pk)
-            instance.save()
-            photo.append({'id': str(instance.pk), 'url': 'media/' + str(instance.file)})
         data = request.data
-        instance = User.objects.get(pk=request.user.pk)
-        serializer = self.user_serializer_class(instance=instance,
+        user = User.objects.get(pk=request.user.pk)
+        upd_photo(request, user)
+        serializer = self.user_serializer_class(instance=user,
                                                 data=data,
                                                 partial=True)
         serializer.is_valid(raise_exception=True)

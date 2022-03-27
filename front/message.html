@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<div id="page" style="display: none">{{ page }}</div>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/index.css' %}">
+    <link rel="stylesheet" href="{% static 'css/message.css' %}">
+    <script rel="script" src="{% static 'js/message.js' %}"></script>
+    <script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/dropzone@5/dist/min/dropzone.min.css" type="text/css"/>
+    <title>Dubov</title>
+</head>
+<body>
+<header>
+    <nav class="nav center">
+        <ul>
+            <li><a href="{% url 'index' %}">Моя страница</a></li>
+            <li class="current"><a href="{% url 'messages' %}">Сообщения</a></li>
+            <li><a onclick="logout()">Выход</a></li>
+        </ul>
+    </nav>
+</header>
+<main class="preloader" id="{{ dialog }}">
+    <div class="left-part">
+        <div class="search">
+            {% csrf_token %}
+            <input oninput="findUser(this)" placeholder="Поиск">
+        </div>
+        <div class="dialogs">
+        </div>
+    </div>
+    <div class="messages">
+        <div class="messages_inner">
+            <p class="data">Выберите диалог</p>
+        </div>
+        <div class="msg-enter">
+            <input class="msg-print" placeholder="Наберите сообщение">
+            <button onclick="send_msg();">></button>
+        </div>
+    </div>
+    <template id="search">
+        <div class="user">
+            <img class="comment-avatar">
+            <p class="search-text"></p>
+            <p class="search-text" onclick="create_dialog(this)">Написать</p>
+        </div>
+    </template>
+    <template id="dialog">
+        <div class="dialog">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTCwT47LMIwpZgFKKuawEneWaO3S_U7g_nUiw&usqp=CAU"
+                 alt="" class="comment-avatar">
+            <div class="dialog-content">
+                <p class="header-msg">Название</p>
+                <p class="last-msg">Нет сообщений</p>
+            </div>
+        </div>
+    </template>
+    <template id="message">
+        <div class="message">
+            <p class="delete-msg" onclick="delete_msg(this)">х</p>
+            <img class="comment-avatar">
+            <div class="message-text">
+                <p>Текст</p>
+            </div>
+        </div>
+    </template>
+</main>
+</body>
+</html>

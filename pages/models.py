@@ -34,8 +34,8 @@ class ArticleManager(models.Manager):
 class Article(models.Model):
     user = models.ForeignKey(to='authentication.User', verbose_name='Пользователь',
                              on_delete=models.CASCADE)
-    header = models.CharField(max_length=255)
-    text = models.CharField(max_length=255)
+    header = models.CharField(max_length=20)
+    text = models.CharField(max_length=100)
     creation_date = models.DateTimeField(auto_now_add=True)
     update_date = models.DateTimeField(auto_now=True)
 
@@ -46,10 +46,11 @@ class Article(models.Model):
 
 
 def upload_path_handler(instance, filename):
-    return "users/{id}/{file}.{ext}".format(id=instance.user, file=uuid4(), ext=filename.split('.')[-1])
+    return "users/{file}.{ext}".format(file=uuid4(), ext=filename.split('.')[-1])
 
 
 class File(models.Model):
-    user = models.ForeignKey(to='authentication.User', verbose_name='Пользователь',
-                             on_delete=models.CASCADE)
     file = models.FileField(upload_to=upload_path_handler)
+
+    class Meta:
+        db_table = 'file'
