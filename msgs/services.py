@@ -1,3 +1,5 @@
+import datetime
+
 from django.db.models import Q
 
 from authentication.models import User
@@ -68,4 +70,6 @@ def get_msgs_of_dialog(pk):
         msg['photo'] = file
         msg['sender'] = msg['sender_id']
         msg['dialog'] = msg['dialog_id']
+        msg['creation_date'] += datetime.timedelta(hours=3)
+        msg['update_date'] += datetime.timedelta(hours=3)
     return sorted(msgs, key=lambda msg: msg['id'], reverse=True)

@@ -63,12 +63,13 @@ main {
     width: 100%;
     margin-left: 20px;
     display: flex;
-    flex-direction: column
+    flex-direction: column;
+    padding-top: 5px;
 }
 
 .header-msg {
-    padding-left: 20px;
     text-align: left;
+    font-weight: bold;
 }
 
 .messages {
@@ -121,6 +122,7 @@ main {
 
 .comment-avatar {
     margin: auto 0 auto 5px;
+    cursor: pointer;
 }
 
 .msg-print {
@@ -142,6 +144,7 @@ main {
 
 .message {
     max-width: 70%;
+    position: relative;
     align-self: flex-start;
     display: flex;
     flex-direction: row;
@@ -179,4 +182,25 @@ main {
     color: rgba(255, 100, 70, 0.67);
     margin: auto 5px;
     cursor: pointer;
+}
+
+@media screen and (max-width: 800px) {
+    .left-part {
+        width: 40%;
+    }
+    .messages {
+        width: 60%;
+    }
+}
+
+.change {
+    position: absolute;
+    bottom: 6px;
+    right: 0;
+    color: grey;
+    font-size: 15px;
+}
+
+.msg-time {
+    padding-top: 6px;
 }

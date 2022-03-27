@@ -1,7 +1,6 @@
 const host = window.location.origin + '/'
 
 let owner = ''
-console.log(location)
 let chatSocket;
 
 window.onload = () => {
@@ -43,12 +42,11 @@ function getDialogs(id = null) {
                     tmp.querySelector("img").src = host + 'media/' + el.photo;
                     if (el.last_msg !== '') {
                         tmp.querySelector(".last-msg").innerHTML = el.last_msg;
+                        tmp.querySelector(".last-msg-time").textContent = el.last_msg_time.split('T')[1].split(':').slice(0,2).join(':');
                     }
                     document.querySelector(".dialogs").appendChild(tmp);
                 })
                 document.querySelector(".messages_inner").scrollTop = document.querySelector(".messages_inner").scrollHeight
-            } else {
-                alert_msg("Ошибка", responseJson["error"])
             }
         })
         .catch(error => {
@@ -79,6 +77,9 @@ function findUser(patch) {
                     tmp.querySelector("p").onclick = () => {
                         location = host + el.id;
                     }
+                    tmp.querySelector("img").onclick = () => {
+                        location = host + el.id;
+                    }
                     tmp.querySelector("p").id = 'user' + el.id
                     tmp.querySelector("img").src = host + el.photo;
                     document.querySelector(".search").appendChild(tmp);
@@ -87,9 +88,6 @@ function findUser(patch) {
                 alert_msg("Ошибка", responseJson["error"])
             }
         })
-        .catch(error => {
-            alert_msg("Ошибка", "" + "Обновите страницу")
-        });
 }
 
 function open_dialog(id) {
@@ -121,29 +119,37 @@ function open_dialog(id) {
                     + '/'
                 );
                 chatSocket.onmessage = function (e) {
-                    console.log('onmessage')
                     const data = JSON.parse(e.data)
-                    if (data.message) {
+                    if (data.type === 'chat_message') {
                         let template = document.querySelector("#message");
                         let tmp = template.content.cloneNode(true);
                         tmp.querySelector('.message-text p').innerHTML = data.message;
                         tmp.querySelector('.comment-avatar').src = host + 'media/' + data.photo;
+                        tmp.querySelector('.msg-time').textContent = data.creation_date.split('T')[1].split(':').slice(0,2).join(':')
                         if (owner === data.sender) {
                             tmp.querySelector('.message').style.alignSelf = 'flex-end';
                             tmp.querySelector('.message').style.flexDirection = 'row-reverse';
                             tmp.querySelector('.message-text').style.cursor = 'pointer';
                             tmp.querySelector('.message-text').onclick = () => onchange_msg(data.id);
                             tmp.querySelector('.delete-msg').style.display = 'unset';
+                            tmp.querySelector('.change').style.right = 'unset';
+                            tmp.querySelector('.change').style.left = '0';
+                        }
+                        tmp.querySelector("img").onclick = () => {
+                            location = host + data.sender;
                         }
                         tmp.querySelector('.message').id = 'message' + data.id
-                        console.log(tmp.querySelector('.message'))
-                        console.log(document.querySelector('.data').nextSibling)
                         try {
                             document.querySelector(".messages_inner").insertBefore(tmp, document.querySelector('.message:last-child').nextSibling);
                         } catch (TypeError) {
                             document.querySelector(".messages_inner").appendChild(tmp);
                         }
                         document.querySelector(".messages_inner").scrollTop = document.querySelector(".messages_inner").scrollHeight
+                    } else if (data.type === 'del_message') {
+                        document.querySelector(`#message${data.id}`).remove()
+                    } else if (data.type === 'change_message') {
+                        document.querySelector(`#message${data.id} .message-text p`).textContent = data.message
+                        document.querySelector(`#message${data.id} .change`).textContent = "изм"
                     }
                     updateDialogs(id)
                 }
@@ -170,12 +176,21 @@ function open_dialog(id) {
                     let tmp = template.content.cloneNode(true);
                     tmp.querySelector('.message-text p').innerHTML = el.text;
                     tmp.querySelector('.comment-avatar').src = host + 'media/' + el.photo;
+                    tmp.querySelector('.msg-time').textContent = el.creation_date.split('T')[1].split(':').slice(0,2).join(':')
                     if (responseJson.owner === el.sender) {
                         tmp.querySelector('.message').style.alignSelf = 'flex-end';
                         tmp.querySelector('.message').style.flexDirection = 'row-reverse';
                         tmp.querySelector('.message-text').style.cursor = 'pointer';
                         tmp.querySelector('.message-text').onclick = () => onchange_msg(el.id);
                         tmp.querySelector('.delete-msg').style.display = 'unset';
+                        tmp.querySelector('.change').style.right = 'unset';
+                        tmp.querySelector('.change').style.left = '0';
+                    }
+                    if (el.creation_date !== el.update_date) {
+                        tmp.querySelector('.change').textContent = "изм"
+                    }
+                    tmp.querySelector("img").onclick = () => {
+                        location = host + el.sender;
                     }
                     tmp.querySelector('.message').id = 'message' + el.id
                     document.querySelector(".messages_inner").insertBefore(tmp, document.querySelector('.data').nextSibling);
@@ -195,33 +210,36 @@ function send_msg() {
     const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
     let value = document.querySelector('.msg-print').value;
     let id = document.querySelector('.messages').id
-    console.log(id)
-    fetch(host + `api/message/${id}/`, {
-        method: 'POST',
-        headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-            'X-CSRFToken': csrftoken,
-        },
-        body: JSON.stringify({
-            text: value
+    if (value !== '') {
+        fetch(host + `api/message/${id}/`, {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken,
+            },
+            body: JSON.stringify({
+                text: value
+            })
+        }).then(response => {
+            return response.json()
         })
-    }).then(response => {
-        return response.json()
-    })
-        .then(responseJson => {
-            if (typeof responseJson['error'] === "undefined") {
-                chatSocket.send(JSON.stringify({
-                    'message': value,
-                    'photo': responseJson.photo,
-                    'sender': responseJson.sender,
-                    'id': responseJson.id
-                }))
-                document.querySelector('.msg-print').value = '';
-            } else {
-                alert_msg("Ошибка", responseJson["error"])
-            }
-        })
+            .then(responseJson => {
+                if (typeof responseJson['error'] === "undefined") {
+                    chatSocket.send(JSON.stringify({
+                        'action': 'chat_message',
+                        'message': value,
+                        'photo': responseJson.photo,
+                        'sender': responseJson.sender,
+                        'id': responseJson.id,
+                        'creation_date': responseJson.creation_date
+                    }))
+                    document.querySelector('.msg-print').value = '';
+                } else {
+                    alert_msg("Ошибка", responseJson["error"])
+                }
+            })
+    }
 }
 
 function logout() {
@@ -240,9 +258,6 @@ function logout() {
             } else {
             }
         })
-        .catch(error => {
-            alert_msg("Ошибка", "Ошибка" + ", обновите страницу")
-        });
 }
 
 function create_dialog(el) {
@@ -266,9 +281,6 @@ function create_dialog(el) {
             } else {
             }
         })
-        .catch(error => {
-            alert_msg("Ошибка", "Ошибка" + ", обновите страницу")
-        });
 }
 
 
@@ -304,6 +316,7 @@ function updateDialogs(id = null) {
                     tmp.querySelector("img").src = host + 'media/' + el.photo;
                     if (el.last_msg !== '') {
                         tmp.querySelector(".last-msg").innerHTML = el.last_msg;
+                        tmp.querySelector(".last-msg-time").textContent = el.last_msg_time.split('T')[1].split(':').slice(0,2).join(':');
                     }
                     document.querySelector(".dialogs").appendChild(tmp);
                 })
@@ -311,9 +324,6 @@ function updateDialogs(id = null) {
                 alert_msg("Ошибка", responseJson["error"])
             }
         })
-        .catch(error => {
-            alert_msg("Ошибка", "" + "Обновите страницу")
-        });
 }
 
 
@@ -332,21 +342,18 @@ function delete_msg(el) {
     })
         .then(responseJson => {
             if (typeof responseJson['error'] === "undefined") {
-                document.querySelector(`#message${id}`).remove()
-            } else {
-                alert_msg("Ошибка", responseJson["error"])
+                chatSocket.send(JSON.stringify({
+                    'action': 'del_message',
+                    'id': id
+                }))
             }
         })
-        .catch(error => {
-            alert_msg("Ошибка", "" + "Обновите страницу")
-        });
 }
 
 
 function change_msg(id) {
     const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
     let text = document.querySelector(`.msg-print`).value
-    console.log(text)
     fetch(host + `api/message/${id}/`, {
         method: 'PUT',
         headers: {
@@ -362,22 +369,43 @@ function change_msg(id) {
     })
         .then(responseJson => {
             if (typeof responseJson['error'] === "undefined") {
-                document.querySelector(`#message${id} .message-text p`).textContent = text
-            } else {
-                alert_msg("Ошибка", responseJson["error"])
+                chatSocket.send(JSON.stringify({
+                    'action': 'change_message',
+                    'id': id,
+                    'message': text
+                }))
             }
         })
-        .catch(error => {
-            alert_msg("Ошибка", "" + "Обновите страницу")
-        });
+    document.querySelector('.msg-print').removeEventListener('keydown', change_msg_listener);
+    document.querySelector('.msg-print').addEventListener('keydown', send_msg_listener);
     document.querySelector('.msg-enter button').onclick = () => send_msg();
     document.querySelector(`.msg-print`).value = '';
 }
 
+let my_id = 0
+let send_msg_listener = function (e) {
+    if (e.keyCode === 13) {
+        send_msg();
+    }
+}
+
+
+let change_msg_listener = function (e) {
+    if (e.keyCode === 13) {
+        change_msg(my_id);
+    }
+}
+
+window.addEventListener("load", function (event) {
+    document.querySelector('.msg-print').addEventListener('keydown', send_msg_listener);
+});
 
 function onchange_msg(id) {
     let text = document.querySelector(`#message${id} .message-text p`).textContent;
     document.querySelector('.msg-print').value = text;
     document.querySelector('.msg-print').focus();
     document.querySelector('.msg-enter button').onclick = () => change_msg(id);
+    my_id = id
+    document.querySelector('.msg-print').removeEventListener('keydown', send_msg_listener);
+    document.querySelector('.msg-print').addEventListener('keydown', change_msg_listener);
 }

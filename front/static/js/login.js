@@ -45,17 +45,31 @@ function register() {
                 Accept: 'application/json',
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({'email': email, 'username': username, 'password': password}),
+            body: JSON.stringify({
+                'email': email,
+                'username': username,
+                'password': password
+            }),
         }).then(response => response.json())
             .then(responseJson => {
-                if (typeof responseJson['error'] === "undefined") {
-                    location.reload()
+                if (typeof responseJson['id'] !== "undefined") {
+                    setTimeout(function () {
+                        location = host + 'login';
+                    }, 2000)
+                    document.querySelector('#ex1').textContent = 'Registered successful';
                 } else {
+                    let a = ''
+                    Object.keys(responseJson).forEach(el => {
+                        a += responseJson[el].toString().replace('This', el) + '<br>'
+                        console.log(a, el)
+                    })
+                    document.querySelector('#ex1').innerHTML = a;
                 }
+                document.querySelector('main p a').click();
             })
-            .catch(error => {
-                alert_msg("Ошибка", "Ошибка" + ", обновите страницу")
-            });
+
+    } else {
+        alert('Пароли разные')
     }
 }
 
@@ -71,12 +85,11 @@ function login() {
         body: JSON.stringify({'email': email, 'password': password}),
     }).then(response => response)
         .then(responseJson => {
-            if (typeof responseJson['error'] === "undefined") {
+            if (responseJson.status !== 400) {
                 location = host;
             } else {
+                document.querySelector('#ex1').innerHTML = 'Неверный логин или пароль';
+                document.querySelector('main p a').click();
             }
         })
-        .catch(error => {
-            alert_msg("Ошибка", "Ошибка" + ", обновите страницу")
-        });
 }

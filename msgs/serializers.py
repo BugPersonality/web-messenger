@@ -7,7 +7,7 @@ from .models import Message, Dialog
 class MessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Message
-        fields = ('id', 'text', 'sender', 'dialog')
+        fields = ('id', 'text', 'sender', 'dialog', 'creation_date')
 
     def create(self, validated_data):
         return Message.objects.create_message(**validated_data)

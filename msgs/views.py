@@ -1,3 +1,5 @@
+import datetime
+
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.response import Response
@@ -32,6 +34,7 @@ class DialogAPIView(APIView):
                 msgs = Message.objects.filter(dialog_id=dialog['id'])
                 if msgs:
                     msg = msgs.latest('id').text
+                    dialog['last_msg_time'] = msgs.latest('id').creation_date + datetime.timedelta(hours=3)
                 else:
                     msg = ''
                 dialog['last_msg'] = msg
@@ -103,7 +106,8 @@ class MessageAPIView(APIView):
         return Response({
                 "id": serializer.data.get('id', None),
                 'sender': request.user.pk,
-                'photo': str(User.objects.get(pk=request.user.pk).photo.file)
+                'photo': str(User.objects.get(pk=request.user.pk).photo.file),
+                'creation_date': serializer.data.get('creation_date', None)
             },
             status=status.HTTP_201_CREATED
         )
