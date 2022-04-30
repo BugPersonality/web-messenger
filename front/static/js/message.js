@@ -1,8 +1,9 @@
 const host = window.location.origin + '/'
-
+ 
 let owner = ''
 let chatSocket;
-
+let dialogSocket;
+ 
 window.onload = () => {
     if (document.querySelector('main').id !== "") {
         getDialogs(document.querySelector('main').id)
@@ -11,8 +12,57 @@ window.onload = () => {
         getDialogs()
     }
 }
-
+ 
 function getDialogs(id = null) {
+    dialogSocket = new WebSocket(
+        'ws://'
+        + window.location.host
+        + '/ws/'
+    );
+    console.log(22)
+    dialogSocket.onmessage = function (e) {
+        fetch(host + `api/dialog/`, {
+        method: 'GET',
+        headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+        },
+    }).then(response => {
+        return response.json()
+    })
+        .then(responseJson => {
+            if (typeof responseJson['error'] === "undefined") {
+                while (document.querySelector(".dialogs").childNodes.length !== 0) {
+                    document.querySelector(".dialogs").childNodes.forEach(el => {
+                        document.querySelector(".dialogs").removeChild(el);
+                    })
+                }
+                responseJson.forEach(el => {
+                    let template = document.querySelector("#dialog");
+                    let tmp = template.content.cloneNode(true);
+                    if (id !== null && (el.id === id || el.id.toString() === id)) {
+                        tmp.querySelector(`.dialog`).classList.add('active_dialog')
+                    }
+                    tmp.querySelector(".dialog").onclick = () => {
+                        open_dialog(el.id)
+                    };
+                    tmp.querySelector(".dialog").id = 'dialog' + el.id
+                    if (el.header === "") {
+                        el.header = el.user
+                    }
+                    tmp.querySelector(".header-msg").innerHTML = el.header;
+                    tmp.querySelector("img").src = host + 'media/' + el.photo;
+                    if (el.last_msg !== '') {
+                        tmp.querySelector(".last-msg").innerHTML = el.last_msg;
+                        tmp.querySelector(".last-msg-time").textContent = el.last_msg_time.split('T')[1].split(':').slice(0,2).join(':');
+                    }
+                    document.querySelector(".dialogs").appendChild(tmp);
+                })
+                document.querySelector(".messages_inner").scrollTop = document.querySelector(".messages_inner").scrollHeight
+            }
+        })
+ 
+    }
     fetch(host + `api/dialog/`, {
         method: 'GET',
         headers: {
@@ -53,7 +103,7 @@ function getDialogs(id = null) {
             location = host + 'login/'
         });
 }
-
+ 
 function findUser(patch) {
     fetch(host + `api/find/?text=${patch.value}`, {
         method: 'GET',
@@ -89,7 +139,7 @@ function findUser(patch) {
             }
         })
 }
-
+ 
 function open_dialog(id) {
     try {
         chatSocket.close()
@@ -112,14 +162,16 @@ function open_dialog(id) {
                 document.querySelector('.messages_inner').style.borderBottom = '1px double #216309'
                 history.pushState(null, null, `/dialogs/${id}/`);
                 chatSocket = new WebSocket(
-                    'wss://'
+                    'ws://'
                     + window.location.host
                     + '/ws/'
                     + id
                     + '/'
                 );
+                console.log(window.location.host)
                 chatSocket.onmessage = function (e) {
                     const data = JSON.parse(e.data)
+                    console.log(data)
                     if (data.type === 'chat_message') {
                         let template = document.querySelector("#message");
                         let tmp = template.content.cloneNode(true);
@@ -153,11 +205,11 @@ function open_dialog(id) {
                     }
                     updateDialogs(id)
                 }
-
+ 
                 chatSocket.onclose = function (e) {
                     console.log('onclose')
                     chatSocket = new WebSocket(
-                        'wss://'
+                        'ws://'
                         + window.location.host
                         + '/ws/'
                         + id
@@ -186,7 +238,7 @@ function open_dialog(id) {
                         tmp.querySelector('.change').style.right = 'unset';
                         tmp.querySelector('.change').style.left = '0';
                     }
-                    if (el.creation_date !== el.update_date) {
+                    if (Date.parse(el.update_date) !== Date.parse(el.creation_date)) {
                         tmp.querySelector('.change').textContent = "изм"
                     }
                     tmp.querySelector("img").onclick = () => {
@@ -205,7 +257,7 @@ function open_dialog(id) {
             }
         })
 }
-
+ 
 function send_msg() {
     const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
     let value = document.querySelector('.msg-print').value;
@@ -234,6 +286,9 @@ function send_msg() {
                         'id': responseJson.id,
                         'creation_date': responseJson.creation_date
                     }))
+                    dialogSocket.send(JSON.stringify({
+                        'action': 'new_dialog'
+                    }))
                     document.querySelector('.msg-print').value = '';
                 } else {
                     alert_msg("Ошибка", responseJson["error"])
@@ -241,7 +296,7 @@ function send_msg() {
             })
     }
 }
-
+ 
 function logout() {
     const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
     fetch(host + 'api/logout/', {
@@ -259,7 +314,7 @@ function logout() {
             }
         })
 }
-
+ 
 function create_dialog(el) {
     const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
     let id = el.parentNode.querySelector("p").id.split('user')[1];
@@ -282,8 +337,8 @@ function create_dialog(el) {
             }
         })
 }
-
-
+ 
+ 
 function updateDialogs(id = null) {
     fetch(host + `api/dialog/`, {
         method: 'GET',
@@ -325,8 +380,8 @@ function updateDialogs(id = null) {
             }
         })
 }
-
-
+ 
+ 
 function delete_msg(el) {
     const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
     let id = el.parentNode.id.split('message')[1]
@@ -349,8 +404,8 @@ function delete_msg(el) {
             }
         })
 }
-
-
+ 
+ 
 function change_msg(id) {
     const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
     let text = document.querySelector(`.msg-print`).value
@@ -380,27 +435,29 @@ function change_msg(id) {
     document.querySelector('.msg-print').addEventListener('keydown', send_msg_listener);
     document.querySelector('.msg-enter button').onclick = () => send_msg();
     document.querySelector(`.msg-print`).value = '';
+    document.querySelector('.msg-edit').classList.add('none');
 }
-
+ 
 let my_id = 0
 let send_msg_listener = function (e) {
     if (e.keyCode === 13) {
         send_msg();
     }
 }
-
-
+ 
+ 
 let change_msg_listener = function (e) {
     if (e.keyCode === 13) {
         change_msg(my_id);
     }
 }
-
+ 
 window.addEventListener("load", function (event) {
     document.querySelector('.msg-print').addEventListener('keydown', send_msg_listener);
 });
-
+ 
 function onchange_msg(id) {
+    document.querySelector('.msg-edit').classList.remove('none');
     let text = document.querySelector(`#message${id} .message-text p`).textContent;
     document.querySelector('.msg-print').value = text;
     document.querySelector('.msg-print').focus();

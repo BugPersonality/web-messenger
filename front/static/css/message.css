@@ -204,3 +204,17 @@ main {
 .msg-time {
     padding-top: 6px;
 }
+
+.msg-edit {
+    position: relative;
+    color: #34631a;
+    margin: 0!important;
+    background-color: #ced5cb;
+    bottom: 10px;
+    height: 40px;
+    text-align: center;
+}
+
+.none {
+    display: none;
+}

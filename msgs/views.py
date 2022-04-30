@@ -37,6 +37,8 @@ class DialogAPIView(APIView):
                     dialog['last_msg_time'] = msgs.latest('id').creation_date + datetime.timedelta(hours=3)
                 else:
                     msg = ''
+                if len(msg) >= 18:
+                    msg = msg[:15] + "..."
                 dialog['last_msg'] = msg
             dialogs = [dialog for dialog in dialogs if dialog['last_msg']]
             dialogs.sort(key=lambda dialog: dialog['update_date'], reverse=True)
